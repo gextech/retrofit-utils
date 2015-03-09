@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:sample;;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    validationInterval: 15000
+    timeBetweenEvictionRunsMillis: 5000
+    minEvictableIdleTimeMillis: 60000
+    maxAge: 600000
+    validationQuery: "SELECT 1;"
+    testOnBorrow: true
+    hbm2ddl:
+      auto: none

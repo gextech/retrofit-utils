@@ -1,0 +1,156 @@
+import java.text.SimpleDateFormat
+
+buildscript {
+  repositories {
+
+    jcenter()
+  }
+  dependencies {
+    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.3.1'
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
+  }
+}
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'jacoco'
+apply plugin: 'com.github.kt3k.coveralls'
+
+group = project.groupId
+version = project.version
+
+sourceCompatibility = project.javaVersion
+targetCompatibility = project.javaVersion
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile ("org.codehaus.groovy:groovy-all:${project.groovyVersion}")
+  compile ("org.grails:grails-core:${project.grailsVersion}")
+  compile ('commons-lang:commons-lang:2.6')
+  testCompile ("org.spockframework:spock-core:${project.spockVersion}")
+
+  testCompile ("org.grails:gorm-hibernate4-spring-boot:${project.gormHibernateVersion}")
+  testCompile "org.spockframework:spock-spring:${project.spockVersion}"
+  testCompile "org.springframework.boot:spring-boot-starter-test:${project.springBootVersion}"
+  testCompile ("org.springframework.boot:spring-boot-starter-web:${project.springBootVersion}")
+  testCompile "org.springframework.boot:spring-boot-starter-data-jpa:${project.springBootVersion}"
+  testCompile "com.h2database:h2:${project.h2Version}"
+}
+
+Date buildTimeAndDate = new Date()
+ext {
+  buildDate = new SimpleDateFormat('dd-MMM-yyyy').format(buildTimeAndDate)
+  buildTime = new SimpleDateFormat('hh:mm aa').format(buildTimeAndDate)
+}
+
+def jarManifestAttributes = [
+  'Built-By'  : System.properties['user.name'],
+  'Created-By': System.properties['java.version'] + ' (' + System.properties['java.vendor'] + ' ' + System.getProperty("java.vm.version") + ")",
+  'Build-Date': buildDate,
+  'Build-Time': buildTime]
+
+jar {
+  manifest {
+    attributes(jarManifestAttributes)
+  }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+artifacts {
+  archives sourcesJar
+}
+
+jacocoTestReport {
+  reports {
+    xml.enabled = true // coveralls plugin depends on xml format report
+    html.enabled = true
+  }
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+
+      pom.withXml {
+        def root = asNode()
+        root.appendNode('name', project.name)
+        root.appendNode('description', project.description)
+        root.appendNode('url', 'https://github.com/gextech/gorm-pagination')
+        root.appendNode('inceptionYear', '2014')
+
+        def scm = root.appendNode('scm')
+        scm.appendNode('url', 'https://github.com/gextech/gorm-pagination')
+        scm.appendNode('connection', 'scm:https://domix@github.com/gextech/gorm-pagination.git')
+        scm.appendNode('developerConnection', 'scm:git@github.com:gextech/gorm-pagination.git')
+
+        def license = root.appendNode('licenses').appendNode('license')
+        license.appendNode('name', 'The Apache Software License, Version 2.0')
+        license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+        license.appendNode('distribution', 'repo')
+
+        def developers = root.appendNode('developers')
+        def domix = developers.appendNode('developer')
+        domix.appendNode('id', 'domix')
+        domix.appendNode('name', 'Domingo Suarez Torres')
+        domix.appendNode('email', 'domingo.suarez@gmail.com')
+
+        def anallely = developers.appendNode('developer')
+        anallely.appendNode('id', 'anallely')
+        anallely.appendNode('name', 'Anallely Olivares')
+        anallely.appendNode('email', 'anaoko@gmail.com')
+      }
+    }
+  }
+}
+
+bintray {
+  user = project.hasProperty('bintray_user') ? bintray_user : ''
+  key = project.hasProperty('bintray_api_key') ? bintray_api_key : ''
+
+  publications = ['mavenJava']
+  dryRun = false //Whether to run this as dry-run, without deploying
+  publish = true //If version should be auto published after an upload
+  pkg {
+    repo = 'oss'
+    userOrg = 'gextech'
+    name = project.name
+    desc = project.description
+    websiteUrl = 'https://github.com/gextech/gorm-pagination'
+    issueTrackerUrl = 'https://github.com/gextech/gorm-pagination/issues'
+    vcsUrl = 'https://github.com/gextech/gorm-pagination.git'
+    licenses = ['Apache-2.0']
+    labels = ['gex', 'data', 'pagination', 'gorm']
+    publicDownloadNumbers = true
+    attributes = ['a': ['ay1', 'ay2'], 'b': ['bee'], c: 'cee']
+    //Optional version descriptor
+    version {
+      name = project.version
+      desc = project.description
+      mavenCentralSync {
+        sync = false
+        user = ''
+        password = ''
+        close = '1'
+      }
+    }
+  }
+}
+
+
+test {
+  testLogging {
+    exceptionFormat = 'full'
+  }
+}

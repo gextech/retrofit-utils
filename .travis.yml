@@ -1,0 +1,16 @@
+sudo: false
+
+cache:
+  directories:
+  - $HOME/.gradle
+
+language: groovy
+
+jdk:
+- oraclejdk8
+
+env:
+- TERM=dumb
+
+script:
+- ./gradlew clean test jacocoTestReport coveralls
