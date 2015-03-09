@@ -8,6 +8,7 @@ buildscript {
   dependencies {
     classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.3.1'
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
+    classpath 'net.researchgate.release:2.0.2'
   }
 }
 
@@ -88,7 +89,7 @@ publishing {
         root.appendNode('name', project.name)
         root.appendNode('description', project.description)
         root.appendNode('url', 'https://github.com/gextech/gorm-pagination')
-        root.appendNode('inceptionYear', '2014')
+        root.appendNode('inceptionYear', '2015')
 
         def scm = root.appendNode('scm')
         scm.appendNode('url', 'https://github.com/gextech/gorm-pagination')
@@ -148,6 +149,7 @@ bintray {
   }
 }
 
+createReleaseTag.dependsOn bintrayUpload
 
 test {
   testLogging {
