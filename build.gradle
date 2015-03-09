@@ -8,17 +8,19 @@ buildscript {
   dependencies {
     classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.3.1'
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
-    classpath 'net.researchgate.release:2.0.2'
+    classpath "net.researchgate:gradle-release:2.0.0"
   }
 }
 
 apply plugin: 'groovy'
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'net.researchgate.release'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
+
 
 group = project.groupId
 version = project.version
@@ -149,10 +151,11 @@ bintray {
   }
 }
 
-createReleaseTag.dependsOn bintrayUpload
 
 test {
   testLogging {
     exceptionFormat = 'full'
   }
 }
+
+createReleaseTag.dependsOn bintrayUpload
