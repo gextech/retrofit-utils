@@ -144,6 +144,10 @@ bintray {
     version {
       name = project.version
       desc = project.description
+      gpg {
+        sign = project.hasProperty('bintrayGExGpgPassphrase')
+        passphrase = project.hasProperty('bintrayGExGpgPassphrase') ? bintrayGExGpgPassphrase : ''
+      }
       mavenCentralSync {
         sync = false
         user = ''
