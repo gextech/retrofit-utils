@@ -147,9 +147,9 @@ class BuilderSpec extends Specification {
 
     then:  // Now, all the exceptions are NullPointerExceptions O.o !!!
       UserErrorException e = thrown()
-      e.message == "Not Found"
+      e.message == "Not Found" ||  e.message.contains( "API rate limit exceeded" )
       DefaultUserErrorResponse errorResponse = e.errorResponse
-      errorResponse.message == "Not Found"
+      errorResponse.message == "Not Found" ||  errorResponse.message.contains( "API rate limit exceeded" )
       errorResponse.extraData == null
   }
 
@@ -165,10 +165,10 @@ class BuilderSpec extends Specification {
 
     then:
       UserErrorException e = thrown()
-      e.message == "Not Found"
+      e.message == "Not Found" ||  e.message.contains( "API rate limit exceeded" )
       CustomizableErrorResponse errorResponse = e.errorResponse
-      errorResponse.message == "Not Found"
-      errorResponse.documentation_url == "https://developer.github.com/v3"
+      errorResponse.message == "Not Found" ||  errorResponse.message.contains( "API rate limit exceeded" )
+      errorResponse.documentation_url.contains("https://developer.github.com/v3")
   }
 
 
@@ -199,7 +199,7 @@ class BuilderSpec extends Specification {
 
     then:  // Now, all the exceptions are NullPointerExceptions O.o !!!
       NullPointerException e = thrown()
-      e.message == "Status: 404"
+      e.message == "Status: 404" || e.message == "Status: 403"
   }
 
 
