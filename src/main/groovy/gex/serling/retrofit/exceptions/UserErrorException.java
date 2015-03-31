@@ -1,21 +1,21 @@
 package gex.serling.retrofit.exceptions;
 
 
-import gex.serling.retrofit.dto.ErrorResponse;
+import gex.serling.retrofit.dto.MessageExtractable;
 
 public class UserErrorException extends RuntimeException {
-  private ErrorResponse errorResponse;
+  private MessageExtractable errorResponse;
 
   private String debugInfo;
 
   private int statusCode;
 
 
-  public ErrorResponse getErrorResponse() {
+  public MessageExtractable getErrorResponse() {
     return errorResponse;
   }
 
-  public UserErrorException(String message, ErrorResponse errorResponse, Integer statusCode, String debugInfo) {
+  public UserErrorException(String message, MessageExtractable errorResponse, Integer statusCode, String debugInfo) {
     super(message);
     if(statusCode != null) {
         this.statusCode = statusCode;

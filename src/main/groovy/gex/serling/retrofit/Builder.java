@@ -3,42 +3,34 @@ package gex.serling.retrofit;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
-import gex.serling.retrofit.dto.APIExceptionResponse;
-import gex.serling.retrofit.dto.ErrorResponse;
-import gex.serling.retrofit.exceptions.ApiException;
-import gex.serling.retrofit.exceptions.UserErrorException;
+import gex.serling.retrofit.dto.DefaultApiErrorResponse;
+import gex.serling.retrofit.dto.DefaultUserErrorResponse;
+import gex.serling.retrofit.dto.MessageExtractable;
 import retrofit.ErrorHandler;
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Header;
 import retrofit.client.OkClient;
-import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 
 /**
  * Created by Tsunllly on 3/31/15.
  */
-public class Builder<Api> {
+public class Builder<Api, UserErrorDto extends MessageExtractable, ApiErrorDto extends MessageExtractable> {
 
   private Gson gson;
   private RestAdapter restAdapter;
   private OkHttpClient okHttpClient;
 
-  private final static Logger LOGGER = Logger.getLogger(Builder.class.getName());
   private String baseUrl;
 
 
-  private GsonBuilder gsonBuilder;
   private RestAdapter.LogLevel logLevel;
   private RestAdapter.Log log;
-  private ErrorHandler errorHandler;
-
+  public ErrorHandler errorHandler;
+  private Class<UserErrorDto> userErrorDtoClazz;
+  private Class<ApiErrorDto> apiErrorDtoClazz;
 
 
   private Builder() {
@@ -46,6 +38,8 @@ public class Builder<Api> {
     okHttpClient.setReadTimeout(20, TimeUnit.SECONDS);
     okHttpClient.setConnectTimeout(5, TimeUnit.SECONDS);
     okHttpClient.setWriteTimeout(20, TimeUnit.SECONDS);
+    this.withUserErrorDto(DefaultUserErrorResponse.class);
+    this.withApiErrorDto(DefaultApiErrorResponse.class);
   }
 
   public static Builder create() {
@@ -60,6 +54,16 @@ public class Builder<Api> {
     return this;
   }
 
+  public Builder withUserErrorDto(Class userErrorDtoClass) {
+    this.userErrorDtoClazz = userErrorDtoClass;
+    return this;
+  }
+
+  public Builder withApiErrorDto(Class apiErrorDtoClass) {
+    this.apiErrorDtoClazz = apiErrorDtoClass;
+    return this;
+  }
+
   public String getDefaultBaseUrl(){
     String apiHost = System.getenv("DOCKER_HOST_TO_USE");
     apiHost = (apiHost != null) ? apiHost : "localhost";
@@ -67,7 +71,6 @@ public class Builder<Api> {
   }
 
   public Gson getDefaultGson(){
-    // TODO: Again we are defining a different GSON :(
     return new GsonBuilder().create();
   }
 
@@ -106,33 +109,6 @@ public class Builder<Api> {
   }
 
 
-  class CrawlErrorHandler implements ErrorHandler {
-    @Override
-    public Throwable handleError(RetrofitError cause) {
-      Response r = cause.getResponse();
-      if (r != null && isUserError(r.getStatus())) {
-        if (isJsonResponse(r)) {
-          ErrorResponse errorResponse = (ErrorResponse) cause.getBodyAs(ErrorResponse.class);
-          if (errorResponse != null && errorResponse.getMessage() != null) {
-            try {
-              return new UserErrorException(errorResponse.getMessage(), errorResponse, r.getStatus(), null);
-            }catch(Exception e){
-              System.out.println(e);
-            }
-          }
-        }
-      }
-
-      APIExceptionResponse errorResponse = (APIExceptionResponse) cause.getBodyAs(APIExceptionResponse.class);
-      if (errorResponse != null && errorResponse.getMessage() != null) {
-        return new ApiException("Respuesta invalida. " + errorResponse.getMessage(), r, cause);
-      } else {
-        return new ApiException("Respuesta invalida. " + cause.getMessage(), r, cause);
-      }
-    }
-  }
-
-
   private void ensureRestAdapterExists() {
 
     RestAdapter.Log defaultLog = new RestAdapter.Log() {
@@ -147,27 +123,14 @@ public class Builder<Api> {
         .setEndpoint((baseUrl != null) ? baseUrl : getDefaultBaseUrl())
         .setConverter(new GsonConverter((gson != null) ? gson : getDefaultGson()))
         .setClient(new OkClient(okHttpClient))
-        .setErrorHandler((errorHandler != null) ? errorHandler : new CrawlErrorHandler())
+        .setErrorHandler((errorHandler != null) ? errorHandler : new DefaultErrorHandler<UserErrorDto, ApiErrorDto>(userErrorDtoClazz, apiErrorDtoClazz))
         .setLogLevel((logLevel != null) ? logLevel : RestAdapter.LogLevel.FULL)
         .setLog((log != null) ? log : defaultLog)
-        .build();
+      .build();
       withRestAdapter(defaultAdapter);
     }
   }
 
-  private boolean isJsonResponse(Response response) {
-    boolean json = false;
-    for (Header h : response.getHeaders()) {
-      if (h.getName() != null && h.getName().toLowerCase().equals("content-type")) {
-        return h.getValue().contains("json");
-      }
-    }
-    return json;
-  }
-
-  private boolean isUserError(Integer statusCode) {
-    return statusCode >= 400 && statusCode < 500;
-  }
 
   public Api buildApi(Class<Api> api) {
     ensureRestAdapterExists();
@@ -175,3 +138,7 @@ public class Builder<Api> {
   }
 
 }
+
+
+
+

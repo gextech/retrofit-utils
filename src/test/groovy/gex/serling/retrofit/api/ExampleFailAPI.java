@@ -12,4 +12,7 @@ public interface ExampleFailAPI {
   @GET("/users/octocat/orgs/{idOrg}")
   Observable<Object> getOrg(@Path("idOrg") String idOrg);
 
+  @GET("/500")
+  Observable<Object> get500();
+
 }

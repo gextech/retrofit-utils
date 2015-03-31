@@ -1,12 +1,15 @@
 package gex.serling.retrofit
 
+import gex.serling.retrofit.api.CustomizableErrorResponse
 import gex.serling.retrofit.api.ExampleFailAPI
 import gex.serling.retrofit.api.ExampleOkAPI
+import gex.serling.retrofit.dto.DefaultUserErrorResponse
+import gex.serling.retrofit.exceptions.ApiException
+import gex.serling.retrofit.exceptions.UserErrorException
 import retrofit.ErrorHandler
 import retrofit.RestAdapter
 import retrofit.RetrofitError
 import retrofit.client.Response
-import spock.lang.IgnoreRest
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -21,6 +24,9 @@ class BuilderSpec extends Specification {
   String octocatBaseUrl
 
   @Shared
+  String customCodeBaseUrl
+
+  @Shared
   String ipRegex
 
   @Shared
@@ -29,6 +35,8 @@ class BuilderSpec extends Specification {
   void setup() {
     ipifyBaseUrl = "http://api.ipify.org"
     octocatBaseUrl = "https://api.github.com"
+    customCodeBaseUrl = "http://httpstat.us"
+
     ipRegex = "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
     prettyLog = new RestAdapter.Log() {
       private static List<String> logAccumulator = []
@@ -46,6 +54,15 @@ class BuilderSpec extends Specification {
         count = 0
       }
     }
+  }
+
+
+  def 'Default url is localhost'() {
+    when:
+      Builder api = new Builder<ExampleFailAPI>().create()
+
+    then:
+      api.getDefaultBaseUrl() == "http://localhost:9191"
   }
 
   def 'It builds a valid api able to return valid response'(){
@@ -119,6 +136,57 @@ class BuilderSpec extends Specification {
   }
 
 
+  def 'Default userError response works correctly :)'() {
+    given:
+      ExampleFailAPI api =  new Builder<ExampleFailAPI>()
+        .withBaseUrl(octocatBaseUrl)
+        .buildApi(ExampleFailAPI)
+
+    when:
+      api.getOrg(UUID.randomUUID().toString()).timeout(10, TimeUnit.SECONDS).toBlocking().first()
+
+    then:  // Now, all the exceptions are NullPointerExceptions O.o !!!
+      UserErrorException e = thrown()
+      e.message == "Not Found"
+      DefaultUserErrorResponse errorResponse = e.errorResponse
+      errorResponse.message == "Not Found"
+      errorResponse.extraData == null
+  }
+
+  def 'DefaultUserError can be happily changed'() {
+    given:
+      ExampleFailAPI api = new Builder<ExampleFailAPI>()
+        .withBaseUrl(octocatBaseUrl)
+        .withUserErrorDto(CustomizableErrorResponse.class)
+        .buildApi(ExampleFailAPI)
+
+    when:
+      api.getOrg(UUID.randomUUID().toString()).timeout(5, TimeUnit.SECONDS).toBlocking().first()
+
+    then:
+      UserErrorException e = thrown()
+      e.message == "Not Found"
+      CustomizableErrorResponse errorResponse = e.errorResponse
+      errorResponse.message == "Not Found"
+      errorResponse.documentation_url == "https://developer.github.com/v3"
+  }
+
+
+  def 'DefaultApiError response works correctly :)'() {
+    given:
+      ExampleFailAPI api = new Builder<ExampleFailAPI>()
+        .withBaseUrl(customCodeBaseUrl)
+        .buildApi(ExampleFailAPI)
+
+    when:
+      api.get500().timeout(5, TimeUnit.SECONDS).toBlocking().first()
+
+    then:
+      ApiException e = thrown()
+      e.message == "Not valid response. 500 Internal Server Error"
+  }
+
+
   def 'Test Builder with custom error handling'() {
     given:
       ExampleFailAPI api =  new Builder()
@@ -135,9 +203,6 @@ class BuilderSpec extends Specification {
   }
 
 
-
-
-
   class TestErrorHandler implements ErrorHandler {
     @Override
     public Throwable handleError(RetrofitError cause) {
@@ -145,7 +210,6 @@ class BuilderSpec extends Specification {
       return new NullPointerException("Status: ${r.status}")
     }
   }
-
 
 
 

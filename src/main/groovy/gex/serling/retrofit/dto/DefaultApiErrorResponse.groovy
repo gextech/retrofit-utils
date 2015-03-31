@@ -1,6 +1,6 @@
 package gex.serling.retrofit.dto
 
-public class APIExceptionResponse implements Serializable {
+public class DefaultApiErrorResponse implements Serializable, MessageExtractable {
 
   /* Describes type of error */
   String error
