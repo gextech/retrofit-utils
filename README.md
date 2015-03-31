@@ -8,11 +8,3 @@ This library paginates hibernate (GORM) entities
 [![Build Status](https://travis-ci.org/gextech/retrofit-utils.svg?branch=master)](https://travis-ci.org/gextech/retrofit-utils)
 [![Coverage Status](https://img.shields.io/coveralls/gextech/retrofit-utils.svg)](https://coveralls.io/r/gextech/retrofit-utils?branch=master)
 [ ![Download](https://api.bintray.com/packages/gextech/oss/retrofit-utils/images/download.svg) ](https://bintray.com/gextech/oss/retrofit-utils/_latestVersion)
-
-
-
-
-
-
-
-
