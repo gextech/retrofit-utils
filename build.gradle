@@ -87,3 +87,86 @@ jacocoTestReport {
     html.enabled = true
   }
 }
+
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+
+      pom.withXml {
+        def root = asNode()
+        root.appendNode('name', project.name)
+        root.appendNode('description', project.description)
+        root.appendNode('url', 'https://github.com/gextech/retrofit-utils')
+        root.appendNode('inceptionYear', '2015')
+
+        def scm = root.appendNode('scm')
+        scm.appendNode('url', 'https://github.com/gextech/retrofit-utils')
+        scm.appendNode('connection', 'scm:https://domix@github.com/gextech/retrofit-utils.git')
+        scm.appendNode('developerConnection', 'scm:git@github.com:gextech/retrofit-utils.git')
+
+        def license = root.appendNode('licenses').appendNode('license')
+        license.appendNode('name', 'The Apache Software License, Version 2.0')
+        license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+        license.appendNode('distribution', 'repo')
+
+        def developers = root.appendNode('developers')
+        def domix = developers.appendNode('developer')
+        domix.appendNode('id', 'domix')
+        domix.appendNode('name', 'Domingo Suarez Torres')
+        domix.appendNode('email', 'domingo.suarez@gmail.com')
+
+        def anallely = developers.appendNode('developer')
+        anallely.appendNode('id', 'anallely')
+        anallely.appendNode('name', 'Anallely Olivares')
+        anallely.appendNode('email', 'anaoko@gmail.com')
+
+        def edu = developers.appendNode('developer')
+        edu.appendNode('id', 'iamedu')
+        edu.appendNode('name', 'Eduardo Díaz Real')
+        edu.appendNode('email', 'iamedu@gmail.com')
+      }
+    }
+  }
+}
+
+
+bintray {
+  user = project.hasProperty('bintray_user') ? bintray_user : ''
+  key = project.hasProperty('bintray_api_key') ? bintray_api_key : ''
+
+  publications = ['mavenJava']
+  dryRun = false //Whether to run this as dry-run, without deploying
+  publish = true //If version should be auto published after an upload
+  pkg {
+    repo = 'oss'
+    userOrg = 'gextech'
+    name = project.name
+    desc = project.description
+    websiteUrl = 'https://github.com/gextech/retrofit-utils'
+    issueTrackerUrl = 'https://github.com/gextech/retrofit-utils/issues'
+    vcsUrl = 'https://github.com/gextech/retrofit-utils.git'
+    licenses = ['Apache-2.0']
+    labels = ['gex', 'serling', 'retrofit', 'retrofit-client']
+    publicDownloadNumbers = true
+    //Optional version descriptor
+    version {
+      name = project.version
+      desc = project.description
+      mavenCentralSync {
+        sync = false
+        user = ''
+        password = ''
+        close = '1'
+      }
+    }
+  }
+}
+
+test {
+  testLogging {
+    exceptionFormat = 'full'
+  }
+}

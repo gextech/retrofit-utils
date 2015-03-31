@@ -8,11 +8,6 @@ import retrofit.ErrorHandler;
 import retrofit.RetrofitError;
 import retrofit.client.Header;
 import retrofit.client.Response;
-import retrofit.converter.ConversionException;
-
-import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
