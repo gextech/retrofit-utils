@@ -1,36 +1,23 @@
 package gex.serling.retrofit.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.Map;
 
-public class DefaultUserErrorResponse implements Serializable, MessageExtractable{
+public class DefaultUserErrorResponse implements Serializable{
 
+ @Getter
+ @Setter
  private String code;
+
+ @Getter
+ @Setter
  private String message;
+
+ @Getter
+ @Setter
  private Map extraData;
-
- public String getCode() {
-  return code;
- }
-
- public void setCode(String code) {
-  this.code = code;
- }
-
- public String getMessage() {
-  return message;
- }
-
- public void setMessage(String message) {
-  this.message = message;
- }
-
- public Map getExtraData() {
-  return extraData;
- }
-
- public void setExtraData(Map extraData) {
-  this.extraData = extraData;
- }
 
 }

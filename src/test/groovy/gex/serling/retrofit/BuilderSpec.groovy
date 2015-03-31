@@ -2,7 +2,7 @@ package gex.serling.retrofit
 
 import gex.serling.retrofit.api.CustomizableErrorResponse
 import gex.serling.retrofit.api.ExampleFailAPI
-import gex.serling.retrofit.api.ExampleOkAPI
+import gex.serling.retrofit.api.ExampleOKAPI
 import gex.serling.retrofit.dto.DefaultUserErrorResponse
 import gex.serling.retrofit.exceptions.ApiException
 import gex.serling.retrofit.exceptions.UserErrorException
@@ -67,9 +67,9 @@ class BuilderSpec extends Specification {
 
   def 'It builds a valid api able to return valid response'(){
     given:
-      ExampleOkAPI ipApi =  new Builder()
+      ExampleOKAPI ipApi =  new Builder()
         .withBaseUrl(ipifyBaseUrl)
-        .buildApi(ExampleOkAPI)
+        .buildApi(ExampleOKAPI)
 
     when:
       def response = ipApi.getIp().timeout(5, TimeUnit.SECONDS).toBlocking().first()
@@ -91,7 +91,7 @@ class BuilderSpec extends Specification {
       def apiPrettyLog =  new Builder()
         .withBaseUrl(ipifyBaseUrl)
         .withLog(prettyLog)
-        .buildApi(ExampleOkAPI)
+        .buildApi(ExampleOKAPI)
 
       apiPrettyLog.getIp().timeout(5, TimeUnit.SECONDS).toBlocking().first()
 
@@ -109,7 +109,7 @@ class BuilderSpec extends Specification {
         .withBaseUrl(ipifyBaseUrl)
         .withLog(prettyLog)
         .withLogLevel(logLevelBasic)
-        .buildApi(ExampleOkAPI)
+        .buildApi(ExampleOKAPI)
 
       apiPrettyLogOnlyBasics.getIp().timeout(5, TimeUnit.SECONDS).toBlocking().first()
 
@@ -127,7 +127,7 @@ class BuilderSpec extends Specification {
         .withBaseUrl(ipifyBaseUrl)
         .withLog(prettyLog)
         .withLogLevel(logLevelNone)
-        .buildApi(ExampleOkAPI)
+        .buildApi(ExampleOKAPI)
 
       apiLogLevelNone.getIp().timeout(5, TimeUnit.SECONDS).toBlocking().first()
 

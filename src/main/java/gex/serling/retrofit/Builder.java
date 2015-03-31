@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import gex.serling.retrofit.dto.DefaultApiErrorResponse;
 import gex.serling.retrofit.dto.DefaultUserErrorResponse;
-import gex.serling.retrofit.dto.MessageExtractable;
 import retrofit.ErrorHandler;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
@@ -17,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Tsunllly on 3/31/15.
  */
-public class Builder<Api, UserErrorDto extends MessageExtractable, ApiErrorDto extends MessageExtractable> {
+public class Builder<Api, UserErrorDto, ApiErrorDto> {
 
   private Gson gson;
   private RestAdapter restAdapter;

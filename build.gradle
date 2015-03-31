@@ -46,7 +46,7 @@ dependencies {
   compile "com.google.code.gson:gson:${project.gsonVersion}"
 
 
-  compile 'org.projectlombok:lombok:1.14.8'
+  compile 'org.projectlombok:lombok:1.16.2'
 
   testCompile ("org.spockframework:spock-core:${project.spockVersion}")
   testCompile "org.spockframework:spock-spring:${project.spockVersion}"

@@ -1,8 +1,6 @@
 package gex.serling.retrofit.api
 
-import gex.serling.retrofit.dto.MessageExtractable
-
-public class CustomizableErrorResponse implements Serializable, MessageExtractable {
+public class CustomizableErrorResponse implements Serializable{
 
   String message
 
